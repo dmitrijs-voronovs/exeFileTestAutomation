@@ -52,10 +52,12 @@ async function runProgram(programName, input, outputName, appendFout = true) {
 
     let goodRun = false;
     if (appendFout) {
-        if (!fs.existsSync(numberInTestName)) fs.mkdirSync(numberInTestName);
+        if (!fs.existsSync(TEST_FOLDER_NAME + numberInTestName)) fs.mkdirSync(TEST_FOLDER_NAME + numberInTestName);
     }
 
-    const fout = appendFout ? numberInTestName + '/' + numberInProgramName + '_' + outputName : outputName;
+    const fout = appendFout
+        ? TEST_FOLDER_NAME + numberInTestName + '/' + numberInProgramName + '_' + outputName
+        : outputName;
 
     try {
         goodRun = await readFromFile(programName, inputName, outputName);
