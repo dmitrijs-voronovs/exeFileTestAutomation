@@ -1,8 +1,9 @@
 var execFile = require('child_process').execFile;
 var fs = require('fs');
 
+const TEST_FOLDER_NAME = 'tests/';
 const ORIGINAL_INPUT = 'parcels.in';
-const ORIGINAL_OUTPUT = 'parcels.out';
+const ORIGINAL_OUTPUT = TEST_FOLDER_NAME + 'parcels.out';
 const TEST_QUANTITY = process.argv[2] || 5;
 const TEST_TIME_LIMIT = 100;
 let executable;
@@ -40,9 +41,10 @@ async function readFromFile(programName, inputName, outputName) {
     });
 }
 
-async function runProgram(programName, inputName, outputName, appendFout = true) {
-    const numberInProgramName = programName.match(/\d/)[0] || 0;
-    const numberInTestName = inputName.match(/\d/)[0] || 0;
+async function runProgram(programName, input, outputName, appendFout = true) {
+    const inputName = TEST_FOLDER_NAME + input;
+    const numberInProgramName = programName.match(/\d/)[0] || '0';
+    const numberInTestName = inputName.match(/\d/)[0] || '0';
 
     if (inputName !== ORIGINAL_INPUT) {
         fs.copyFileSync(inputName, ORIGINAL_INPUT);
@@ -71,11 +73,11 @@ async function runProgram(programName, inputName, outputName, appendFout = true)
 }
 
 const allPrograms = [
-    'parcels_1.exe',
-    'parcels_2.exe',
-    'parcels_3.exe',
-    'parcels_4.exe',
-    'parcels_5.exe'
+    'exe/parcels_1.exe',
+    'exe/parcels_2.exe',
+    'exe/parcels_3.exe',
+    'exe/parcels_4.exe',
+    'exe/parcels_5.exe'
 ];
 
 async function runPrograms() {
