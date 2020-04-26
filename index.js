@@ -2,6 +2,7 @@ var execFile = require('child_process').execFile;
 var fs = require('fs');
 
 const TEST_FOLDER_NAME = 'tests/';
+const INPUT_FOLDER_NAME = 'input/';
 const ORIGINAL_INPUT = 'parcels.in';
 const ORIGINAL_OUTPUT = TEST_FOLDER_NAME + 'parcels.out';
 const TEST_QUANTITY = process.argv[2] || 5;
@@ -42,7 +43,7 @@ async function readFromFile(programName, inputName, outputName) {
 }
 
 async function runProgram(programName, input, outputName, appendFout = true) {
-    const inputName = TEST_FOLDER_NAME + input;
+    const inputName = TEST_FOLDER_NAME + INPUT_FOLDER_NAME + input;
     const numberInProgramName = programName.match(/\d/)[0] || '0';
     const numberInTestName = inputName.match(/\d/)[0] || '0';
 
