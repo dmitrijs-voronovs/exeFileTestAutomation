@@ -4,7 +4,7 @@ var fs = require('fs');
 const TEST_FOLDER_NAME = 'tests/';
 const INPUT_FOLDER_NAME = 'input/';
 const ORIGINAL_INPUT = 'parcels.in';
-const ORIGINAL_OUTPUT = TEST_FOLDER_NAME + 'parcels.out';
+const ORIGINAL_OUTPUT = 'parcels.out';
 const TEST_QUANTITY = process.argv[2] || 5;
 const TEST_TIME_LIMIT = 100;
 let executable;
@@ -47,10 +47,6 @@ async function runProgram(programName, input, outputName, appendFout = true) {
     const numberInProgramName = programName.match(/\d/)[0] || '0';
     const numberInTestName = inputName.match(/\d/)[0] || '0';
 
-    if (inputName !== ORIGINAL_INPUT) {
-        fs.copyFileSync(inputName, ORIGINAL_INPUT);
-    }
-
     let goodRun = false;
     if (appendFout) {
         if (!fs.existsSync(TEST_FOLDER_NAME + numberInTestName)) fs.mkdirSync(TEST_FOLDER_NAME + numberInTestName);
@@ -59,7 +55,10 @@ async function runProgram(programName, input, outputName, appendFout = true) {
     const fout = appendFout
         ? TEST_FOLDER_NAME + numberInTestName + '/' + numberInProgramName + '_' + outputName
         : outputName;
-
+    
+    console.log(inputName, ORIGINAL_INPUT, fout, ORIGINAL_OUTPUT)
+    fs.copyFileSync(inputName, ORIGINAL_INPUT);
+    
     try {
         goodRun = await readFromFile(programName, inputName, outputName);
     } catch (e) {
@@ -85,7 +84,12 @@ const allPrograms = [
 
 async function runPrograms() {
     for (let i = 0; i < allPrograms.length; i++) {
-        for (let j = 1; j <= TEST_QUANTITY; j++) await runProgram(allPrograms[i], 'parcels.i' + j, 'parcels.o' + j)
+        for (let j = 1; j <= TEST_QUANTITY; j++) {
+            // const timeStart = new Date();
+            await runProgram(allPrograms[i], 'parcels.i' + j, 'parcels.o' + j);
+            // const timeEnd = new Date();
+            // console.log(timeEnd - timeStart);
+        }
     }
     process.exit();
 }
