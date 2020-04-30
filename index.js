@@ -6,15 +6,17 @@ const INPUT_FOLDER_NAME = 'input/';
 const ORIGINAL_INPUT = 'parcels.in';
 const ORIGINAL_OUTPUT = 'parcels.out';
 const TEST_QUANTITY = process.argv[2] || 5;
-const TEST_TIME_LIMIT = 100;
+const TEST_TIME_LIMIT = 1000;
 let executable;
+
+let stats = {}
 
 async function runExeFile(programName) {
     return new Promise((resolve, reject) => {
         try {
             let cancelled = false
             executable = execFile(programName, (err, stdout, stderr) => {
-                console.log([err, stdout, stderr]);
+                // console.log([err, stdout, stderr]);
 
                 if (!err) {
                     console.log('Good!');
@@ -57,15 +59,24 @@ async function runProgram(programName, input, outputName, appendFout = true) {
 
     fs.copyFileSync(inputName, ORIGINAL_INPUT);
 
+    let timer = new Date();
+
     try {
-        goodRun = await runExeFile(programName, inputName, outputName);
+        goodRun = await runExeFile(programName);
+        timer = new Date() - timer;
+
     } catch (e) {
-        // console.log('in catch', e);
-        // fs.appendFileSync(fout, '\nFAILED\n-------');
+        console.log('in catch', e);
+        fs.appendFileSync(fout, '\nFAILED\n-------');
     } finally {
         fs.copyFileSync(ORIGINAL_OUTPUT, fout);
         if (!goodRun) {
-            fs.appendFileSync(fout, '\n-------\nFAILED');
+            fs.appendFileSync(fout, 'FAILED');
+            stats[programName][numberInTestName] = { status: 'Failed' };
+        } else {
+            stats[programName][numberInTestName] = {
+                status: 'OK', time: timer
+            };
         }
         return Promise.resolve();
     }
@@ -82,6 +93,7 @@ const allPrograms = [
 
 async function runPrograms() {
     for (let i = 0; i < allPrograms.length; i++) {
+        stats[allPrograms[i]] = {};
         for (let j = 1; j <= TEST_QUANTITY; j++) {
             console.log(`Running parcels_${ i }.exe\t Test parcels.i${ j }`)
             let timer = new Date();
@@ -90,6 +102,7 @@ async function runPrograms() {
             console.log(timer)
         }
     }
+    console.log(stats);
     process.exit();
 }
 
