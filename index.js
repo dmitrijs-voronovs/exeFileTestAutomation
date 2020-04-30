@@ -9,11 +9,10 @@ const TEST_QUANTITY = process.argv[2] || 5;
 const TEST_TIME_LIMIT = 100;
 let executable;
 
-async function readFromFile(programName, inputName, outputName) {
+async function runExeFile(programName) {
     return new Promise((resolve, reject) => {
         try {
             let cancelled = false
-            console.log('Running', programName, inputName, '->', outputName);
             executable = execFile(programName, (err, stdout, stderr) => {
                 console.log([err, stdout, stderr]);
 
@@ -55,12 +54,11 @@ async function runProgram(programName, input, outputName, appendFout = true) {
     const fout = appendFout
         ? TEST_FOLDER_NAME + numberInTestName + '/' + numberInProgramName + '_' + outputName
         : outputName;
-    
-    console.log(inputName, ORIGINAL_INPUT, fout, ORIGINAL_OUTPUT)
+
     fs.copyFileSync(inputName, ORIGINAL_INPUT);
-    
+
     try {
-        goodRun = await readFromFile(programName, inputName, outputName);
+        goodRun = await runExeFile(programName, inputName, outputName);
     } catch (e) {
         // console.log('in catch', e);
         // fs.appendFileSync(fout, '\nFAILED\n-------');
@@ -85,10 +83,11 @@ const allPrograms = [
 async function runPrograms() {
     for (let i = 0; i < allPrograms.length; i++) {
         for (let j = 1; j <= TEST_QUANTITY; j++) {
-            // const timeStart = new Date();
+            console.log(`Running parcels_${ i }.exe\t Test parcels.i${ j }`)
+            let timer = new Date();
             await runProgram(allPrograms[i], 'parcels.i' + j, 'parcels.o' + j);
-            // const timeEnd = new Date();
-            // console.log(timeEnd - timeStart);
+            timer = new Date() - timer;
+            console.log(timer)
         }
     }
     process.exit();
