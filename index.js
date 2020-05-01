@@ -10,10 +10,9 @@ const TEST_RESULT_PREFIX = 'parcels.o';
 const PROGRAM_DEFAULT_INPUT_PATH = './' + TEST_PREFIX + 'n';
 const PROGRAM_DEFAULT_OUTPUT_PATH = './' + TEST_RESULT_PREFIX + 'ut';
 
+const TIME_LIMIT = 200;
 const TEST_QUANTITY = process.argv[2] || 5;
 const ONLY_ONE_TEST = process.argv[3] || false;
-
-// const parameters = ["--incognito"];
 
 const allPrograms = [
     './exe/parcels_1.exe',
@@ -27,31 +26,40 @@ const statistics = {};
 function runTest(exeNumber, testNumber) {
     const exePath = allPrograms[exeNumber];
     copyFile(INPUT_FOLDER_PATH + TEST_PREFIX + testNumber, PROGRAM_DEFAULT_INPUT_PATH);
+
+    let time = new Date();
     const success = runExe(exePath);
+    time = new Date() - time;
     console.log(success);
     checkAndCreateFolder(TEST_FOLDER_PATH + testNumber);
-    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1));
+
+    const outputPath = TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1);
+    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, outputPath);
+
+    const equal = checkEqualFiles(outputPath, CORRRECT_OUTPUT_FOLDER_PATH + TEST_RESULT_PREFIX + testNumber)
     if (!success) {
-        fs.appendFileSync(TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1), `\n------\nFAILED`);
+        // fs.appendFileSync(outputPath, `\n------\nFAILED`);
+        statistics[exePath][testNumber] = { equal, status: time < TIME_LIMIT / 10 ? 'OK' : 'failed', time };
+    } else {
+        statistics[exePath][testNumber] = { equal, status: 'pass', time };
     }
 }
 
 function runExe(executablePath) {
-    console.log(executablePath);
-    console.log(readFileInsides(PROGRAM_DEFAULT_INPUT_PATH));
+    // console.log(printFile(PROGRAM_DEFAULT_INPUT_PATH));
     let success = true;
     let process;
     try {
         process = execFileSync(executablePath, [], {
-            timeout: 200
+            timeout: TIME_LIMIT
         });
     } catch (e) {
+        // console.log('error', e.errno || e.status || e.code, e);
         console.log('error', e.errno || e.status || e.code, e);
         success = false;
     } finally {
-        console.log(process && process.toString('utf-8'));
         console.log('done');
-        console.log(readFileInsides(PROGRAM_DEFAULT_OUTPUT_PATH));
+        // console.log(printFile(PROGRAM_DEFAULT_OUTPUT_PATH));
         return success;
     }
 }
@@ -61,7 +69,7 @@ function checkAndCreateFolder(folderName) {
 }
 
 function copyFile(from, to) {
-    console.log('copy', from, to);
+    // console.log('copy', from, to);
     try {
         fs.copyFileSync(from, to);
     } catch (e) {
@@ -69,16 +77,15 @@ function copyFile(from, to) {
     }
 }
 
-function readFileInsides(filename) {
+function printFile(filename) {
     const fileInfo = fs.readFileSync(filename, { encoding: 'UTF-8' });
-    console.log(fileInfo.split('\r\n'));
-
-    // const fileExpected = fs.readFileSync('./parcels.expected', { encoding: 'UTF-8' });
-    // console.log(fileExpected, fileExpected === fileInfo);
+    console.log(fileInfo);
 }
 
 function checkEqualFiles(f1, f2) {
-    return true;
+    const fileInfo1 = fs.readFileSync(f1, { encoding: 'UTF-8' });
+    const fileInfo2 = fs.readFileSync(f2, { encoding: 'UTF-8' });
+    return fileInfo1 === fileInfo2;
 }
 
 function runAllTests(till, onlyOne = false) {
