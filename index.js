@@ -13,7 +13,8 @@ const PROGRAM_DEFAULT_OUTPUT_PATH = './' + TEST_RESULT_PREFIX + 'ut';
 const TEST_QUANTITY = process.argv[2] || 5;
 const ONLY_ONE_TEST = process.argv[3] || false;
 
-const parameters = ["--incognito"];
+// const parameters = ["--incognito"];
+
 const allPrograms = [
     './exe/parcels_1.exe',
     './exe/parcels_2.exe',
@@ -24,7 +25,7 @@ const allPrograms = [
 const statistics = {};
 
 function runTest(exeNumber, testNumber) {
-    const exePath = allPrograms[exeNumber + 1];
+    const exePath = allPrograms[exeNumber];
     copyFile(INPUT_FOLDER_PATH + TEST_PREFIX + testNumber, PROGRAM_DEFAULT_INPUT_PATH);
     const success = runExe(exePath);
     console.log(success);
@@ -36,20 +37,21 @@ function runTest(exeNumber, testNumber) {
 }
 
 function runExe(executablePath) {
-    // console.log(readFileInsides(PROGRAM_DEFAULT_INPUT_PATH));
-    // console.log(executablePath);
+    console.log(executablePath);
+    console.log(readFileInsides(PROGRAM_DEFAULT_INPUT_PATH));
     let success = true;
     let process;
     try {
-        process = execFileSync(executablePath, parameters, {
+        process = execFileSync(executablePath, [], {
             timeout: 200
         });
     } catch (e) {
-        console.log('error', e.errno || e.status);
+        console.log('error', e.errno || e.status || e.code);
         success = false;
     } finally {
+        console.log(process && process.toString('utf-8'));
         console.log('done');
-        // console.log(readFileInsides(PROGRAM_DEFAULT_OUTPUT_PATH));
+        console.log(readFileInsides(PROGRAM_DEFAULT_OUTPUT_PATH));
         return success;
     }
 }
@@ -59,7 +61,7 @@ function checkAndCreateFolder(folderName) {
 }
 
 function copyFile(from, to) {
-    // console.log('copy', from, to);
+    console.log('copy', from, to);
     try {
         fs.copyFileSync(from, to);
     } catch (e) {
@@ -80,7 +82,7 @@ function checkEqualFiles(f1, f2) {
 }
 
 function runAllTests(till, onlyOne) {
-    for (let i = 0; i <= 5; i++) {
+    for (let i = 0; i < 5; i++) {
         const start = onlyOne
             ? till
             : 1;
@@ -96,3 +98,4 @@ function runAllTests(till, onlyOne) {
 }
 
 runAllTests(TEST_QUANTITY, ONLY_ONE_TEST);
+// runTest(process.argv[2], process.argv[3]);
