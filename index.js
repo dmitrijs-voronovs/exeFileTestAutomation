@@ -5,8 +5,8 @@ const TEST_FOLDER_PATH = './tests/';
 const INPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'input/';
 const CORRRECT_OUTPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'output/';
 const EXECUTABLE_PATH = './exe/';
-const TEST_PREFIX = 'parcels.i';
-const TEST_RESULT_PREFIX = 'parcels.o';
+const TEST_PREFIX = 'gailis.i';
+const TEST_RESULT_PREFIX = 'gailis.o';
 const PROGRAM_DEFAULT_INPUT_PATH = './' + TEST_PREFIX + 'n';
 const PROGRAM_DEFAULT_OUTPUT_PATH = './' + TEST_RESULT_PREFIX + 'ut';
 
@@ -15,11 +15,11 @@ const TEST_QUANTITY = process.argv[2] || 5;
 const ONLY_ONE_TEST = process.argv[3] || false;
 
 const allPrograms = [
-    './exe/parcels_1.exe',
-    './exe/parcels_2.exe',
-    './exe/parcels_3.exe',
-    './exe/parcels_4.exe',
-    './exe/parcels_5.exe'
+    EXECUTABLE_PATH + 'gailis_1.exe',
+    EXECUTABLE_PATH + 'gailis_2.exe',
+    EXECUTABLE_PATH + 'gailis_3.exe',
+    EXECUTABLE_PATH + 'gailis_4.exe',
+    EXECUTABLE_PATH + 'gailis_5.exe'
 ];
 const statistics = {};
 
@@ -82,9 +82,18 @@ function printFile(filename) {
     console.log(fileInfo);
 }
 
+function cleanFileFromLastEmptyLine(f) {
+    const lines = f.split('\r\n');
+    if (lines[lines.length - 1] === '') {
+        lines.pop();
+    }
+    return lines.join('\r\n');
+}
+
 function checkEqualFiles(f1, f2) {
-    const fileInfo1 = fs.readFileSync(f1, { encoding: 'UTF-8' });
-    const fileInfo2 = fs.readFileSync(f2, { encoding: 'UTF-8' });
+    const fileInfo1 = cleanFileFromLastEmptyLine(fs.readFileSync(f1, { encoding: 'UTF-8' }));
+    const fileInfo2 = cleanFileFromLastEmptyLine(fs.readFileSync(f2, { encoding: 'UTF-8' }));
+
     return fileInfo1 === fileInfo2;
 }
 
@@ -96,7 +105,7 @@ function runAllTests(till, onlyOne = false) {
         statistics[allPrograms[i]] = {};
 
         for (let j = start; j <= till; j++) {
-            console.log(`Running parcels_${ i + 1 }.exe\t Test parcels.i${ j }`)
+            console.log(`Running gailis_${ i + 1 }.exe\t Test gailis.i${ j }`)
             runTest(i, j)
         }
     }
