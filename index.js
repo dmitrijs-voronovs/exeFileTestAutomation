@@ -6,7 +6,7 @@ const INPUT_FOLDER_NAME = 'input/';
 const ORIGINAL_INPUT = 'parcels.in';
 const ORIGINAL_OUTPUT = 'parcels.out';
 const TEST_QUANTITY = process.argv[2] || 5;
-const TEST_TIME_LIMIT = 1000;
+const TEST_TIME_LIMIT = 200;
 let executable;
 
 let stats = {}
@@ -19,13 +19,13 @@ async function runExeFile(programName) {
                 // console.log([err, stdout, stderr]);
 
                 if (!err) {
-                    console.log('Good!');
+                    // console.log('Good!');
                     cancelled = true;
                     return resolve(true);
                 }
 
                 if (err) {
-                    console.log('Baad!');
+                    // console.log('Baad!');
                     cancelled = true;
                     return resolve(true);
                 }
@@ -45,8 +45,8 @@ async function runExeFile(programName) {
 
 async function runProgram(programName, input, outputName, appendFout = true) {
     const inputName = TEST_FOLDER_NAME + INPUT_FOLDER_NAME + input;
-    const numberInProgramName = programName.match(/\d/)[0] || '0';
-    const numberInTestName = inputName.match(/\d/)[0] || '0';
+    const numberInProgramName = programName.match(/\d+/)[0] || '0';
+    const numberInTestName = inputName.match(/\d+/)[0] || '0';
 
     let goodRun = false;
     if (appendFout) {
@@ -67,7 +67,7 @@ async function runProgram(programName, input, outputName, appendFout = true) {
 
     } catch (e) {
         console.log('in catch', e);
-        fs.appendFileSync(fout, '\nFAILED\n-------');
+        // fs.appendFileSync(fout, '\nFAILED\n-------');
     } finally {
         fs.copyFileSync(ORIGINAL_OUTPUT, fout);
         if (!goodRun) {
@@ -94,13 +94,14 @@ const allPrograms = [
 async function runPrograms() {
     for (let i = 0; i < allPrograms.length; i++) {
         stats[allPrograms[i]] = {};
-        for (let j = 1; j <= TEST_QUANTITY; j++) {
-            console.log(`Running parcels_${ i }.exe\t Test parcels.i${ j }`)
+        const j = TEST_QUANTITY;
+        // for (let j = 1; j <= TEST_QUANTITY; j++) {
+            console.log(`Running parcels_${ i + 1 }.exe\t Test parcels.i${ j }`)
             let timer = new Date();
             await runProgram(allPrograms[i], 'parcels.i' + j, 'parcels.o' + j);
             timer = new Date() - timer;
             console.log(timer)
-        }
+        // }
     }
     console.log(stats);
     process.exit();
