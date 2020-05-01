@@ -30,9 +30,9 @@ function runTest(exeNumber, testNumber) {
     const success = runExe(exePath);
     console.log(success);
     checkAndCreateFolder(TEST_FOLDER_PATH + testNumber);
-    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + exeNumber);
+    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1));
     if (!success) {
-        fs.appendFileSync(TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + exeNumber, `\n------\nFAILED`);
+        fs.appendFileSync(TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1), `\n------\nFAILED`);
     }
 }
 
@@ -46,7 +46,7 @@ function runExe(executablePath) {
             timeout: 200
         });
     } catch (e) {
-        console.log('error', e.errno || e.status || e.code);
+        console.log('error', e.errno || e.status || e.code, e);
         success = false;
     } finally {
         console.log(process && process.toString('utf-8'));
@@ -81,7 +81,7 @@ function checkEqualFiles(f1, f2) {
     return true;
 }
 
-function runAllTests(till, onlyOne) {
+function runAllTests(till, onlyOne = false) {
     for (let i = 0; i < 5; i++) {
         const start = onlyOne
             ? till
@@ -90,12 +90,13 @@ function runAllTests(till, onlyOne) {
 
         for (let j = start; j <= till; j++) {
             console.log(`Running parcels_${ i + 1 }.exe\t Test parcels.i${ j }`)
-            runTest(i + 1, j)
+            runTest(i, j)
         }
     }
     console.log(statistics);
     process.exit();
 }
 
-runAllTests(TEST_QUANTITY, ONLY_ONE_TEST);
+console.log('----------------------------------------------------');
+runAllTests(TEST_QUANTITY, !!ONLY_ONE_TEST);
 // runTest(process.argv[2], process.argv[3]);
