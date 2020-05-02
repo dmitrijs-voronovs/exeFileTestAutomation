@@ -17,7 +17,7 @@ function formatInputFileData(filename) {
         const parts = lines[i].split(' ');
         lines[i] = `[${ parts[0] }] - [${ parts[1] }]`;
     }
-    lines[lines.length] = '#fill: white;';
+    lines[lines.length] = '#fill: white\n#bendSize: 0.29\n#ranker: longest-path';
     return lines.join('\n');
 }
 
