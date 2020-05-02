@@ -7,7 +7,7 @@ const ONLY_ONE_GRAPH = process.argv[3] || false;
 
 function formatInputFileData(filename) {
     const filestring = fs.readFileSync(filename, { encoding: 'UTF-8' });
-    const lines = filestring.split(/\n/);
+    const lines = filestring.split(/\r\n/);
     if (lines[lines.length - 1] === '') {
         lines.pop();
     }
@@ -43,4 +43,4 @@ function generateAllDiagrams(till, onlyOne = false) {
     }
 }
 
-generateAllDiagrams(GRAPH_QUANTITY, ONLY_ONE_GRAPH);
+generateAllDiagrams(GRAPH_QUANTITY, !!ONLY_ONE_GRAPH);
