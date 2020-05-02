@@ -82,17 +82,33 @@ function printFile(filename) {
     console.log(fileInfo);
 }
 
-function cleanFileFromLastEmptyLine(f) {
-    const lines = f.split('\r\n');
+function cleanFileFromLastEmptyLine(filestring) {
+    const lines = filestring.split('\r\n');
     if (lines[lines.length - 1] === '') {
         lines.pop();
     }
     return lines.join('\r\n');
 }
 
-function checkEqualFiles(f1, f2) {
-    const fileInfo1 = cleanFileFromLastEmptyLine(fs.readFileSync(f1, { encoding: 'UTF-8' }));
-    const fileInfo2 = cleanFileFromLastEmptyLine(fs.readFileSync(f2, { encoding: 'UTF-8' }));
+function generateDiagram(filename) {
+    const filestring = cleanFileFromLastEmptyLine(fs.readFileSync(filename, { encoding: 'UTF-8' }));
+    const lines = filestring.split('\n');
+    if (lines[lines.length - 1] === '') {
+        lines.pop();
+    }
+    lines.shift();
+    lines.pop();
+    for (i in lines) {
+        const parts = lines[i].split(' ');
+        lines[i] = `[${ parts[0] }] - [${ parts[1] }]`;
+    }
+
+    console.log(lines.join('\n'));
+}
+
+function checkEqualFiles(filename, filename2) {
+    const fileInfo1 = cleanFileFromLastEmptyLine(fs.readFileSync(filename, { encoding: 'UTF-8' }));
+    const fileInfo2 = cleanFileFromLastEmptyLine(fs.readFileSync(filename2, { encoding: 'UTF-8' }));
 
     return fileInfo1 === fileInfo2;
 }
@@ -114,5 +130,7 @@ function runAllTests(till, onlyOne = false) {
 }
 
 console.log('----------------------------------------------------');
-runAllTests(TEST_QUANTITY, !!ONLY_ONE_TEST);
+// runAllTests(TEST_QUANTITY, !!ONLY_ONE_TEST);
 // runTest(process.argv[2], process.argv[3]);
+
+generateDiagram('./tests/input/gailis.i4');
