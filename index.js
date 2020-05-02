@@ -1,42 +1,34 @@
 var execFileSync = require('child_process').execFileSync;
 var fs = require('fs');
-
-const TEST_FOLDER_PATH = './tests/';
-const INPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'input/';
-const CORRRECT_OUTPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'output/';
-const EXECUTABLE_PATH = './exe/';
-const TEST_PREFIX = 'gailis.i';
-const TEST_RESULT_PREFIX = 'gailis.o';
-const PROGRAM_DEFAULT_INPUT_PATH = './' + TEST_PREFIX + 'n';
-const PROGRAM_DEFAULT_OUTPUT_PATH = './' + TEST_RESULT_PREFIX + 'ut';
+var c = require('./fileConstants');
 
 const TIME_LIMIT = 200;
 const TEST_QUANTITY = process.argv[2] || 5;
 const ONLY_ONE_TEST = process.argv[3] || false;
 
 const allPrograms = [
-    EXECUTABLE_PATH + 'gailis_1.exe',
-    EXECUTABLE_PATH + 'gailis_2.exe',
-    EXECUTABLE_PATH + 'gailis_3.exe',
-    EXECUTABLE_PATH + 'gailis_4.exe',
-    EXECUTABLE_PATH + 'gailis_5.exe'
+    c.EXECUTABLE_PATH + 'gailis_1.exe',
+    c.EXECUTABLE_PATH + 'gailis_2.exe',
+    c.EXECUTABLE_PATH + 'gailis_3.exe',
+    c.EXECUTABLE_PATH + 'gailis_4.exe',
+    c.EXECUTABLE_PATH + 'gailis_5.exe'
 ];
 const statistics = {};
 
 function runTest(exeNumber, testNumber) {
     const exePath = allPrograms[exeNumber];
-    copyFile(INPUT_FOLDER_PATH + TEST_PREFIX + testNumber, PROGRAM_DEFAULT_INPUT_PATH);
+    copyFile(c.INPUT_FOLDER_PATH + c.TEST_PREFIX + testNumber, c.PROGRAM_DEFAULT_INPUT_PATH);
 
     let time = new Date();
     const success = runExe(exePath);
     time = new Date() - time;
     console.log(success);
-    checkAndCreateFolder(TEST_FOLDER_PATH + testNumber);
+    checkAndCreateFolder(c.TEST_FOLDER_PATH + testNumber);
 
-    const outputPath = TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1);
-    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, outputPath);
+    const outputPath = c.TEST_FOLDER_PATH + testNumber + '/' + c.TEST_RESULT_PREFIX + (exeNumber + 1);
+    copyFile(c.PROGRAM_DEFAULT_OUTPUT_PATH, outputPath);
 
-    const equal = checkEqualFiles(outputPath, CORRRECT_OUTPUT_FOLDER_PATH + TEST_RESULT_PREFIX + testNumber)
+    const equal = checkEqualFiles(outputPath, c.CORRRECT_OUTPUT_FOLDER_PATH + c.TEST_RESULT_PREFIX + testNumber)
     if (!success) {
         // fs.appendFileSync(outputPath, `\n------\nFAILED`);
         statistics[exePath][testNumber] = { equal, status: time < TIME_LIMIT / 10 ? 'OK' : 'failed', time };
@@ -46,7 +38,7 @@ function runTest(exeNumber, testNumber) {
 }
 
 function runExe(executablePath) {
-    // console.log(printFile(PROGRAM_DEFAULT_INPUT_PATH));
+    // console.log(printFile(c.PROGRAM_DEFAULT_INPUT_PATH));
     let success = true;
     let process;
     try {
@@ -59,7 +51,7 @@ function runExe(executablePath) {
         success = false;
     } finally {
         console.log('done');
-        // console.log(printFile(PROGRAM_DEFAULT_OUTPUT_PATH));
+        // console.log(printFile(c.PROGRAM_DEFAULT_OUTPUT_PATH));
         return success;
     }
 }
@@ -90,22 +82,6 @@ function cleanFileFromLastEmptyLine(filestring) {
     return lines.join('\r\n');
 }
 
-function generateDiagram(filename) {
-    const filestring = cleanFileFromLastEmptyLine(fs.readFileSync(filename, { encoding: 'UTF-8' }));
-    const lines = filestring.split('\n');
-    if (lines[lines.length - 1] === '') {
-        lines.pop();
-    }
-    lines.shift();
-    lines.pop();
-    for (i in lines) {
-        const parts = lines[i].split(' ');
-        lines[i] = `[${ parts[0] }] - [${ parts[1] }]`;
-    }
-
-    console.log(lines.join('\n'));
-}
-
 function checkEqualFiles(filename, filename2) {
     const fileInfo1 = cleanFileFromLastEmptyLine(fs.readFileSync(filename, { encoding: 'UTF-8' }));
     const fileInfo2 = cleanFileFromLastEmptyLine(fs.readFileSync(filename2, { encoding: 'UTF-8' }));
@@ -130,7 +106,5 @@ function runAllTests(till, onlyOne = false) {
 }
 
 console.log('----------------------------------------------------');
-// runAllTests(TEST_QUANTITY, !!ONLY_ONE_TEST);
+runAllTests(TEST_QUANTITY, !!ONLY_ONE_TEST);
 // runTest(process.argv[2], process.argv[3]);
-
-generateDiagram('./tests/input/gailis.i4');
