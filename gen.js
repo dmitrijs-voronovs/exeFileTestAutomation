@@ -26,20 +26,13 @@ function wr(...args) {
 //     }
 // }
 
-wr(110);
+wr(1001);
 
-const allUpps = [];
-
-for (let i = 0; i < 10; i++) {
-    allUpps.push(i * 10 + 1);
-    for (let j = 2; j <= 10; j++) {
-        wr(i * 10 + 1, i * 10 + j);
+for (let hundreds = 0; hundreds < 400; hundreds += 100) {
+    for (let i = hundreds + 2; i < hundreds + 100 + 1; i++) {
+        wr(`${i - 1} ${ i}`);
     }
 }
 
-for (let i = 0; i < allUpps.length - 1; i++) {
-    wr(allUpps[i], allUpps[i + 1]);
-}
 
 wr(0, 0)
-console.log(allUpps);

@@ -31,10 +31,12 @@ function generateAllDiagrams(till, onlyOne = false) {
 
     for (let i = start; i <= till; i++) {
         const input = formatInputFileData(c.INPUT_FOLDER_PATH + c.TEST_PREFIX + i);
+        let terminateManually = true;
         generateDiagram({
             input,
             output: c.INPUT_DIAGRAMS_FOLDER_PATH + i + '.png'
         }).then(() => {
+            terminateManually = false;
             console.log(`Generating diagram for ${ i } test`);
             console.log(input);
         }).catch(e => {
