@@ -31,18 +31,23 @@ function generateAllDiagrams(till, onlyOne = false) {
 
     for (let i = start; i <= till; i++) {
         const input = formatInputFileData(c.INPUT_FOLDER_PATH + c.TEST_PREFIX + i);
-        let terminateManually = true;
+        if (input.length > 15000) {
+            console.log('Unable to generate diagram for', i, '\n', 'FILE IS HUGE!');
+            continue;
+        }
+
+        console.log(`Generating diagram for ${ i } test`);
         generateDiagram({
             input,
             output: c.INPUT_DIAGRAMS_FOLDER_PATH + i + '.png'
         }).then(() => {
-            terminateManually = false;
-            console.log(`Generating diagram for ${ i } test`);
-            console.log(input);
+            console.log(`Diagram for ${i} test was generated succesfully!`);
+            // console.log(input);
         }).catch(e => {
             console.log('Unable to generate diagram for', i, '\n', e);
         });
     }
+
 }
 
 generateAllDiagrams(GRAPH_QUANTITY, !!ONLY_ONE_GRAPH);
