@@ -22,7 +22,7 @@ To run a single test use
 
 For instance, to run test No 7 use command `node index 7 true`
 
-To run all tests until incidated (including it) use
+To run all tests until inвiсated (including it) use
 > `node index <int: test number>`
 
 For instance, to run all tests 1 - 10 including use command `node index 10`
