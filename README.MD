@@ -19,10 +19,12 @@ This is test automation program for **.exe** files (specifically for gailis.exe 
 #### Run tests and get summary
 To run a single test use
 > `node index <int: test number> true`
+
 For instance, to run test No 7 use command `node index 7 true`
 
 To run all tests until incidated (including it) use
 > `node index <int: test number>`
+
 For instance, to run all tests 1 - 10 including use command `node index 10`
 
 #### Create graphical representation of a test
