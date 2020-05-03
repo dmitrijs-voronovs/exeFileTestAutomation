@@ -25,12 +25,12 @@ For instance, to run test No 7 use command `node index 7 true`
 To run all tests until indicated (including it) use
 > `node index <int: test number>`
 
-For instance, to run all tests 1 - 10 including use command `node index 10`
+For instance, to run all tests 1 - 10 (including) use command `node index 10`
 
 #### Create graphical representation of a test
 The same rule applies to creating graphical representations.
 To create a signle diagram use
 > `node graphBuilder <int: test number> true`
 
-To create 1 - <test number> (including) use
+To create all diagrams till certain test number (including) use
 > `node graphBuilder <int: test number>`
