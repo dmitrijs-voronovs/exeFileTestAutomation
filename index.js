@@ -1,58 +1,70 @@
 var execFileSync = require('child_process').execFileSync;
 var fs = require('fs');
+var c = require('./fileConstants');
 
-const TEST_FOLDER_PATH = './tests/';
-const INPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'input/';
-const CORRRECT_OUTPUT_FOLDER_PATH = TEST_FOLDER_PATH + 'output/';
-const EXECUTABLE_PATH = './exe/';
-const TEST_PREFIX = 'parcels.i';
-const TEST_RESULT_PREFIX = 'parcels.o';
-const PROGRAM_DEFAULT_INPUT_PATH = './' + TEST_PREFIX + 'n';
-const PROGRAM_DEFAULT_OUTPUT_PATH = './' + TEST_RESULT_PREFIX + 'ut';
-
+const TIME_LIMIT = 2000;
 const TEST_QUANTITY = process.argv[2] || 5;
 const ONLY_ONE_TEST = process.argv[3] || false;
 
-// const parameters = ["--incognito"];
-
 const allPrograms = [
-    './exe/parcels_1.exe',
-    './exe/parcels_2.exe',
-    './exe/parcels_3.exe',
-    './exe/parcels_4.exe',
-    './exe/parcels_5.exe'
+    c.EXECUTABLE_PATH + 'gailis_1.exe',
+    c.EXECUTABLE_PATH + 'gailis_2.exe',
+    c.EXECUTABLE_PATH + 'gailis_3.exe',
+    c.EXECUTABLE_PATH + 'gailis_4.exe',
+    c.EXECUTABLE_PATH + 'gailis_5.exe'
 ];
 const statistics = {};
 
 function runTest(exeNumber, testNumber) {
     const exePath = allPrograms[exeNumber];
-    copyFile(INPUT_FOLDER_PATH + TEST_PREFIX + testNumber, PROGRAM_DEFAULT_INPUT_PATH);
-    const success = runExe(exePath);
+    copyFile(c.INPUT_FOLDER_PATH + c.TEST_PREFIX + testNumber, c.PROGRAM_DEFAULT_INPUT_PATH);
+    deleteFile(c.PROGRAM_DEFAULT_OUTPUT_PATH);
+
+    let time = new Date();
+    const { success, errorCode } = runExe(exePath);
+    time = new Date() - time;
     console.log(success);
-    checkAndCreateFolder(TEST_FOLDER_PATH + testNumber);
-    copyFile(PROGRAM_DEFAULT_OUTPUT_PATH, TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1));
+    checkAndCreateFolder(c.TEST_FOLDER_PATH + testNumber);
+
+    const outputPath = c.TEST_FOLDER_PATH + testNumber + '/' + c.TEST_RESULT_PREFIX + (exeNumber + 1);
+
+    deleteFile(outputPath);
+    const copiedSuccesfully = copyFile(c.PROGRAM_DEFAULT_OUTPUT_PATH, outputPath);
+
+    console.log(copiedSuccesfully);
+
+    const equal = copiedSuccesfully
+        ? checkEqualFiles(outputPath, c.CORRRECT_OUTPUT_FOLDER_PATH + c.TEST_RESULT_PREFIX + testNumber)
+        : false;
+
     if (!success) {
-        fs.appendFileSync(TEST_FOLDER_PATH + testNumber + '/' + TEST_RESULT_PREFIX + (exeNumber + 1), `\n------\nFAILED`);
+        // fs.appendFileSync(outputPath, `\n------\nFAILED`);
+        statistics[exePath][testNumber] = { equal, status: 'FAIL', time };
+    } else {
+        statistics[exePath][testNumber] = { equal, status: 'OK', time };
     }
 }
 
 function runExe(executablePath) {
-    console.log(executablePath);
-    console.log(readFileInsides(PROGRAM_DEFAULT_INPUT_PATH));
+    // console.log(printFile(c.PROGRAM_DEFAULT_INPUT_PATH));
     let success = true;
     let process;
+    let errorCode;
     try {
         process = execFileSync(executablePath, [], {
-            timeout: 200
+            timeout: TIME_LIMIT
         });
     } catch (e) {
+        // console.log('error', e.errno || e.status || e.code, e);
         console.log('error', e.errno || e.status || e.code, e);
+        errorCode = e.code;
         success = false;
     } finally {
-        console.log(process && process.toString('utf-8'));
         console.log('done');
-        console.log(readFileInsides(PROGRAM_DEFAULT_OUTPUT_PATH));
-        return success;
+        // console.log(printFile(c.PROGRAM_DEFAULT_OUTPUT_PATH));
+        return {
+            success, errorCode
+        };
     }
 }
 
@@ -61,24 +73,42 @@ function checkAndCreateFolder(folderName) {
 }
 
 function copyFile(from, to) {
-    console.log('copy', from, to);
+    // console.log('copy', from, to);
     try {
         fs.copyFileSync(from, to);
     } catch (e) {
-        console.log('failed copyting', from, to);
+        console.log('failed copying', from, to);
+        return false;
+    }
+    return true;
+}
+
+function printFile(filename) {
+    const fileInfo = fs.readFileSync(filename, { encoding: 'UTF-8' });
+    console.log(fileInfo);
+}
+
+function deleteFile(filename) {
+    try {
+        fs.unlinkSync(filename);
+    } catch (e) {
+        console.log('no file to delete by path', filename);
     }
 }
 
-function readFileInsides(filename) {
-    const fileInfo = fs.readFileSync(filename, { encoding: 'UTF-8' });
-    console.log(fileInfo.split('\r\n'));
-
-    // const fileExpected = fs.readFileSync('./parcels.expected', { encoding: 'UTF-8' });
-    // console.log(fileExpected, fileExpected === fileInfo);
+function cleanFileFromLastEmptyLine(filestring) {
+    const lines = filestring.split('\r\n');
+    if (lines[lines.length - 1] === '') {
+        lines.pop();
+    }
+    return lines.join('\r\n');
 }
 
-function checkEqualFiles(f1, f2) {
-    return true;
+function checkEqualFiles(filename, filename2) {
+    const fileInfo1 = cleanFileFromLastEmptyLine(fs.readFileSync(filename, { encoding: 'UTF-8' }));
+    const fileInfo2 = cleanFileFromLastEmptyLine(fs.readFileSync(filename2, { encoding: 'UTF-8' }));
+
+    return fileInfo1 === fileInfo2;
 }
 
 function runAllTests(till, onlyOne = false) {
@@ -89,7 +119,7 @@ function runAllTests(till, onlyOne = false) {
         statistics[allPrograms[i]] = {};
 
         for (let j = start; j <= till; j++) {
-            console.log(`Running parcels_${ i + 1 }.exe\t Test parcels.i${ j }`)
+            console.log(`Running gailis_${ i + 1 }.exe\t Test gailis.i${ j }`)
             runTest(i, j)
         }
     }
